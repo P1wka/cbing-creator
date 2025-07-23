@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="img/icon.png" type="image/x-icon" />
+<title>Cbing Meme Creator</title>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+
+  .fixed-container {
+    position: relative;
+    width: 384px;
+    height: 384px;
+    border-radius: 0px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    background-color: #152f54;
+    margin-bottom: 15px;
+  }
+
+  #fixedImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+    position: relative;
+    z-index: 2;
+  }
+
+  #preview {
+    position: absolute;
+    width: 194px;
+    height: 194px;
+    object-fit: cover;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(calc(-50% - 20px)) rotate(16deg);
+    border: 2px solid #444;
+    background: white;
+    box-sizing: border-box;
+    display: none;
+    z-index: 1;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #1766d1;
+    color: white;
+    box-shadow: 0 4px 8px rgba(23, 102, 209, 0.5);
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #145ab1;
+  }
+</style>
+</head>
+<body>
+
+<button onclick="document.getElementById('fileInput').click()">Choose Image</button>
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewImage(event)" />
+
+<div class="fixed-container">
+  <img id="fixedImage" src="img/chandler.png" alt="Chandler" />
+  <img id="preview" alt="User's Image" />
+</div>
+
+<button id="downloadBtn" style="display:none" onclick="downloadCombinedImage()">İndir</button>
+
+<script>
+  let userImg = null;
+  let fixedImg = document.getElementById('fixedImage');
+
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    fixedImg.style.display = 'block';
+
+    const img = new Image();
+    img.onload = function() {
+      userImg = img;
+      document.getElementById('downloadBtn').style.display = 'inline-block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+
+function downloadCombinedImage() {
+  if (!userImg || !fixedImg.complete) {
+    alert('Please first choose an image.');
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 384;
+  canvas.height = 384;
+
+  const targetWidth = 194;
+  const targetHeight = 194;
+  const centerX = canvas.width / 2 - 20;
+  const centerY = canvas.height - targetHeight / 2;
+
+  const iw = userImg.naturalWidth;
+  const ih = userImg.naturalHeight;
+  const iratio = iw / ih;
+  const targetRatio = targetWidth / targetHeight;
+
+  let sx, sy, sWidth, sHeight;
+  if (iratio > targetRatio) {
+    sHeight = ih;
+    sWidth = ih * targetRatio;
+    sx = (iw - sWidth) / 2;
+    sy = 0;
+  } else {
+    sWidth = iw;
+    sHeight = iw / targetRatio;
+    sx = 0;
+    sy = (ih - sHeight) / 2;
+  }
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(16 * Math.PI / 180);
+  ctx.drawImage(userImg, sx, sy, sWidth, sHeight, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
+  ctx.restore();
+
+  ctx.drawImage(fixedImg, 0, 0, canvas.width, canvas.height);
+
+  const fileName = 'image_' + Math.floor(Math.random() * 100000) + '.png';
+  const link = document.createElement('a');
+  link.download = fileName;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+
+
+
+</script>
+
+</body>
+</html>
