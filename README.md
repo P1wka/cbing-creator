@@ -19,4 +19,21 @@ This simple project displays one iconic Chandler meme for entertainment or inspi
 1. Make sure Python is installed:
    ```bash
    python --version
-2. Run **starthost.bat** in project folder.
+2. **git clone https://github.com/P1wka/cbing-creator.git**
+
+
+3. Run **starthost.bat** in project folder.
+
+---
+
+## 🧰 Requirements
+
+- Python 3+
+- A modern browser (Chrome, Firefox, etc.)
+* No external dependencies — just HTML/CSS/JS.
+
+---
+
+## 📄 License
+
+This project — **cbing creator** — is licensed under the MIT License.
